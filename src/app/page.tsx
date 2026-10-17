@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { FORMATS, FORMAT_LIST } from '@/lib/constants'
 import { Faq } from '@/components/landing/Faq'
+import { SignUpSection } from '@/components/landing/SignUpSection'
+import { DeployWidget } from '@/components/landing/DeployWidget'
+import { AuthButtons } from '@/components/landing/AuthButtons'
 
 const STEPS = [
   {
@@ -95,17 +98,15 @@ const SAFETY = [
 export default function LandingPage() {
   return (
     <main className="min-h-dvh bg-cream">
+      <DeployWidget />
       {/* Шапка */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-        <div className="text-xl font-bold tracking-tight">
-          PRO<span className="text-rose-500">MAM</span>
+      <header className="sticky top-0 z-50 border-b border-line/30 bg-gradient-to-r from-white via-white to-rose-50/20 backdrop-blur-xl shadow-sm">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
+          <Link href="/" className="text-xl font-bold tracking-tight hover:opacity-80 transition">
+            PRO<span className="text-rose-500">MAM</span>
+          </Link>
+          <AuthButtons />
         </div>
-        <Link
-          href="/app"
-          className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-cream transition hover:opacity-90"
-        >
-          Відкрити мапу
-        </Link>
       </header>
 
       {/* Герой */}
@@ -123,20 +124,7 @@ export default function LandingPage() {
           мітку, заплануй зустріч на вихідні, знайди подругу зі спільними інтересами.
         </p>
 
-        <div className="mt-9 flex flex-wrap items-center gap-3">
-          <Link
-            href="/app"
-            className="rounded-full bg-rose-500 px-7 py-3.5 font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:bg-rose-600"
-          >
-            Відкрити застосунок
-          </Link>
-          <a
-            href="#how"
-            className="rounded-full border border-line px-7 py-3.5 font-medium transition hover:bg-sand"
-          >
-            Як це працює
-          </a>
-        </div>
+        <SignUpSection />
 
         {/* Формати */}
         <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -214,14 +202,11 @@ export default function LandingPage() {
       <section className="py-20 text-center">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Готова познайомитись?</h2>
         <p className="mx-auto mt-3 max-w-md text-muted">
-          Відкрий мапу й подивись, хто вже поруч.
+          Відкрий мапу й подивись, хто вже поруч. Або приєднайся прямо зараз! 💚
         </p>
-        <Link
-          href="/app"
-          className="mt-8 inline-block rounded-full bg-rose-500 px-8 py-4 font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:bg-rose-600"
-        >
-          Відкрити застосунок
-        </Link>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <SignUpSection />
+        </div>
       </section>
 
       <footer className="border-t border-line py-10 text-center text-sm text-muted">

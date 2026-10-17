@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "deploy": "bash quick-deploy.sh",
+    "setup": "bash setup.sh",
+    "deploy:full": "node promam-deploy.js"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
@@ -27,8 +30,10 @@
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/web-push": "^3.6.4",
+    "dotenv": "^18.0.8",
     "eslint": "^9.36.0",
     "eslint-config-next": "^15.5.4",
+    "pg": "^8.23.1",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2"
   }

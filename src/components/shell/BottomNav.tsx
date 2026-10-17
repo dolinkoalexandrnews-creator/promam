@@ -8,6 +8,7 @@ import { supabaseBrowser } from '@/lib/supabase/client'
 const TABS = [
   { href: '/app', label: 'Мапа', icon: MapIcon, exact: true },
   { href: '/app/circles', label: 'Кола', icon: CirclesIcon },
+  { href: '/app/schools', label: 'Садочки', icon: SchoolIcon },
   { href: '/app/chats', label: 'Чати', icon: ChatIcon, badge: true },
   { href: '/app/friends', label: 'Подруги', icon: FriendsIcon },
   { href: '/app/profile', label: 'Я', icon: ProfileIcon },
@@ -142,6 +143,16 @@ function ProfileIcon({ filled }: IconProps) {
     <svg width="22" height="22" viewBox="0 0 24 24" {...stroke} strokeWidth={filled ? 2.2 : 1.8}>
       <circle cx="12" cy="8" r="3.6" />
       <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+    </svg>
+  )
+}
+
+function SchoolIcon({ filled }: IconProps) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" {...stroke} strokeWidth={filled ? 2.2 : 1.8}>
+      <path d="M12 2 4 6v4h16V6l-8-4Z" />
+      <rect x="5" y="10" width="14" height="10" rx="1" />
+      <path d="M9 14h2v4H9M13 14h2v4h-2M8 10v-2M16 10v-2" />
     </svg>
   )
 }

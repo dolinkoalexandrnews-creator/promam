@@ -73,9 +73,9 @@ export async function POST(request: Request) {
     .from('profiles_private')
     .select('id')
     .eq('telegram_id', telegramId)
-    .maybeSingle()
+    .maybeSingle() as { data: { id: string } | null }
 
-  let userId = existing?.id ?? null
+  let userId = (existing as any)?.id ?? null
 
   if (!userId) {
     const { data: created, error } = await admin.auth.admin.createUser({

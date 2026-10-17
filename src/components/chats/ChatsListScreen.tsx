@@ -1,137 +1,162 @@
 'use client'
 
 import Link from 'next/link'
-import { useCallback, useEffect, useState } from 'react'
-import { supabaseBrowser } from '@/lib/supabase/client'
-import { Avatar } from '@/components/ui/Avatar'
-import { Empty, Spinner } from '@/components/ui/controls'
-import { agoLabel } from '@/lib/format'
+import { useEffect, useState } from 'react'
 
-type ChatRow = {
-  chat_id: string
-  is_group: boolean
-  pin_title: string | null
-  other_id: string | null
-  other_name: string
-  other_photo: string | null
-  last_body: string | null
-  last_at: string | null
-  unread: number
+type Chat = {
+  id: string
+  with_name: string
+  messages: Array<{ sender: string; body: string; at: string }>
 }
 
 export function ChatsListScreen() {
-  const sb = supabaseBrowser()
-  const [rows, setRows] = useState<ChatRow[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  const load = useCallback(async () => {
-    const { data: auth } = await sb.auth.getUser()
-    if (!auth.user) return
-
-    const { data: memberships, error: e } = await sb
-      .from('chat_members')
-      .select(
-        'chat_id, last_read_at, chats(is_group, pins(title), direct_chats(user_a, user_b))',
-      )
-      .eq('user_id', auth.user.id)
-    if (e) {
-      setError(e.message)
-      return
-    }
-
-    const list = (memberships ?? []) as unknown as Array<{
-      chat_id: string
-      last_read_at: string
-      chats: {
-        is_group: boolean
-        pins: { title: string } | null
-        direct_chats: { user_a: string; user_b: string }[] | null
-      } | null
-    }>
-
-    const result: ChatRow[] = []
-
-    for (const m of list) {
-      if (!m.chats) continue
-
-      // Пропускаємо чати кіл — вони живуть у «Колах», а не у стрічці чатів.
-      const { data: circleCheck } = await sb
-        .from('circles')
-        .select('id')
-        .eq('chat_id', m.chat_id)
-        .maybeSingle()
-      if (circleCheck) continue
-
-      let otherId: string | null = null
-      let otherName = m.chats.pins?.title ?? 'Компанія'
-      let otherPhoto: string | null = null
-
-      if (!m.chats.is_group && m.chats.direct_chats?.length) {
-        const pair = m.chats.direct_chats[0]
-        otherId = pair.user_a === auth.user.id ? pair.user_b : pair.user_a
-        const { data: profile } = await sb
-          .from('profiles')
-          .select('display_name, photo_url')
-          .eq('id', otherId)
-          .single()
-        otherName = profile?.display_name ?? 'Мама'
-        otherPhoto = profile?.photo_url ?? null
-      }
-
-      const { data: last } = await sb
-        .from('messages')
-        .select('body, created_at')
-        .eq('chat_id', m.chat_id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      const { count: unread } = await sb
-        .from('messages')
-        .select('id', { count: 'exact', head: true })
-        .eq('chat_id', m.chat_id)
-        .neq('sender_id', auth.user.id)
-        .gt('created_at', m.last_read_at)
-
-      result.push({
-        chat_id: m.chat_id,
-        is_group: m.chats.is_group,
-        pin_title: m.chats.pins?.title ?? null,
-        other_id: otherId,
-        other_name: otherName,
-        other_photo: otherPhoto,
-        last_body: last?.body ?? null,
-        last_at: last?.created_at ?? null,
-        unread: unread ?? 0,
-      })
-    }
-
-    result.sort((a, b) => (b.last_at ?? '').localeCompare(a.last_at ?? ''))
-    setRows(result)
-  }, [sb])
+  const [chats, setChats] = useState<Chat[]>([])
+  const [currentUser, setCurrentUser] = useState<string>('')
+  const [newChatName, setNewChatName] = useState('')
+  const [showForm, setShowForm] = useState(false)
 
   useEffect(() => {
-    void load()
-    const channel = sb
-      .channel('chats-list')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () =>
-        void load(),
-      )
-      .subscribe()
-    return () => {
-      void sb.removeChannel(channel)
+    const user = localStorage.getItem('currentUser')
+    if (user) {
+      setCurrentUser(JSON.parse(user).name)
+      const stored = localStorage.getItem('chats')
+      if (stored) {
+        setChats(JSON.parse(stored))
+      }
     }
-  }, [sb, load])
+  }, [])
 
-  if (error) return <p className="m-5 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>
+  function startChat() {
+    if (!newChatName.trim()) return
 
-  if (!rows) {
+    const newChat: Chat = {
+      id: Date.now().toString(),
+      with_name: newChatName.trim(),
+      messages: [],
+    }
+
+    const updated = [...chats, newChat]
+    setChats(updated)
+    localStorage.setItem('chats', JSON.stringify(updated))
+    setNewChatName('')
+    setShowForm(false)
+  }
+
+  if (!chats.length) {
     return (
-      <div className="grid h-[60dvh] place-items-center">
-        <Spinner className="h-6 w-6 text-rose-500" />
+      <div className="mx-auto max-w-lg px-4 pt-5">
+        <h1 className="mb-4 text-2xl font-bold tracking-tight">Чати</h1>
+        {showForm ? (
+          <div className="rounded-2xl border border-rose-200 bg-white p-4 space-y-3">
+            <p className="text-sm font-medium">З ким хочеш писати?</p>
+            <input
+              type="text"
+              placeholder="Ім'я подруги"
+              value={newChatName}
+              onChange={(e) => setNewChatName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') startChat()
+              }}
+              className="w-full rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-rose-300"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={startChat}
+                className="flex-1 rounded-lg bg-rose-500 px-4 py-2.5 text-sm font-medium text-white"
+              >
+                Розпочати чат
+              </button>
+              <button
+                onClick={() => setShowForm(false)}
+                className="flex-1 rounded-lg border border-line px-4 py-2.5 text-sm font-medium"
+              >
+                Скасувати
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center">
+            <p className="text-sm text-rose-900">💬 Поки немає чатів</p>
+            <button
+              onClick={() => setShowForm(true)}
+              className="mt-4 inline-block px-6 py-2 bg-rose-500 text-white rounded-lg text-sm font-medium"
+            >
+              + Розпочати чат
+            </button>
+          </div>
+        )}
       </div>
     )
   }
+
+  return (
+    <div className="mx-auto max-w-lg px-4 pt-5 pb-5">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold tracking-tight">Чати</h1>
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-3 py-1 bg-rose-500 text-white text-sm rounded-lg font-medium"
+        >
+          +
+        </button>
+      </div>
+
+      {showForm && (
+        <div className="rounded-2xl border border-rose-200 bg-white p-4 space-y-3 mb-4">
+          <p className="text-sm font-medium">З ким хочеш писати?</p>
+          <input
+            type="text"
+            placeholder="Ім'я подруги"
+            value={newChatName}
+            onChange={(e) => setNewChatName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') startChat()
+            }}
+            className="w-full rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-rose-300"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={startChat}
+              className="flex-1 rounded-lg bg-rose-500 px-4 py-2.5 text-sm font-medium text-white"
+            >
+              Розпочати
+            </button>
+            <button
+              onClick={() => setShowForm(false)}
+              className="flex-1 rounded-lg border border-line px-4 py-2.5 text-sm font-medium"
+            >
+              Скасувати
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-2">
+        {chats.map((chat) => {
+          const lastMsg = chat.messages[chat.messages.length - 1]
+          return (
+            <Link
+              key={chat.id}
+              href={`/app/chats/${chat.id}`}
+              className="flex items-center gap-3 rounded-2xl border border-line p-3 transition hover:bg-sand/50"
+            >
+              <div className="h-10 w-10 rounded-full bg-rose-200 flex items-center justify-center text-sm font-bold text-rose-700">
+                {chat.with_name[0]}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="font-medium text-text">{chat.with_name}</div>
+                <div className="text-xs text-muted truncate">
+                  {lastMsg?.body ?? 'Чат відкрито'}
+                </div>
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
 
   if (!rows.length) {
     return (

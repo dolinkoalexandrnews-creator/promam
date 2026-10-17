@@ -48,7 +48,32 @@ export async function currentUser() {
 export async function currentProfile() {
   const sb = await supabaseServer()
   const { data: auth } = await sb.auth.getUser()
-  if (!auth.user) return null
+  if (!auth.user) {
+    // Демо режим: повертати фейк профіль для тестування
+    return {
+      id: 'demo-user',
+      display_name: 'Тестова мама',
+      photo_url: null,
+      bio: 'Demo профіль для тестування',
+      interests: [],
+      is_banned: false,
+      ban_reason: null,
+      is_verified: false,
+      rating: 5,
+      onboarded_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      children: [
+        {
+          id: 'demo-child-1',
+          user_id: 'demo-user',
+          birth_month: 6,
+          gender: 'female',
+          created_at: new Date().toISOString(),
+        },
+      ],
+    } as any
+  }
 
   const { data } = await sb
     .from('profiles')

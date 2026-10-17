@@ -13,21 +13,19 @@ const supabaseHost = supabaseUrl ? new URL(supabaseUrl).hostname : undefined
  */
 const csp = [
   `default-src 'self'`,
-  `script-src 'self' 'unsafe-inline' https://telegram.org`,
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval'`,
   `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
   `font-src 'self' https://fonts.gstatic.com`,
-  `img-src 'self' data: blob: https://*.basemaps.cartocdn.com https://lh3.googleusercontent.com https://t.me https://cdn4.cdn-telegram.org${
+  `img-src 'self' data: blob: https://*.basemaps.cartocdn.com https://lh3.googleusercontent.com${
     supabaseUrl ? ` ${supabaseUrl}` : ''
   }`,
   `connect-src 'self' https://*.basemaps.cartocdn.com${
     supabaseUrl ? ` ${supabaseUrl} ${supabaseUrl.replace('https://', 'wss://')}` : ''
   }`,
-  `frame-src https://oauth.telegram.org`,
   `form-action 'self'`,
   `frame-ancestors 'none'`,
   `object-src 'none'`,
   `base-uri 'self'`,
-  `upgrade-insecure-requests`,
 ].join('; ')
 
 const config: NextConfig = {
