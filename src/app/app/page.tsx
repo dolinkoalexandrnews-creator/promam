@@ -16,20 +16,26 @@ export default function AppPage() {
 
   useEffect(() => {
     const user = localStorage.getItem('currentUser')
-    if (user) setCurrentUser(JSON.parse(user))
-    else setCurrentUser({ id: '1', name: 'Марія', email: 'maria@promam.ua' })
-    loadMoms()
+    if (!user) {
+      router.push('/')
+    } else {
+      setCurrentUser(JSON.parse(user))
+      loadMoms()
+    }
   }, [])
 
   const loadMoms = async () => {
-    const { data, error } = await supabase
-      .from('mom_profiles')
-      .select('*, users(id, name, email)')
+    try {
+      const { data, error } = await supabase
+        .from('mom_profiles')
+        .select('*, users(id, name, email)')
 
-    if (!error && data) {
-      setMoms(data)
+      if (!error && data) {
+        setMoms(data)
+      }
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   useEffect(() => {
@@ -86,6 +92,18 @@ export default function AppPage() {
     if (!error) {
       setNewMessage('')
     }
+  }
+
+  // LOADING
+  if (loading || !currentUser) {
+    return (
+      <div className="min-h-dvh bg-cream flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">⏳</div>
+          <p className="text-muted">Загружаю...</p>
+        </div>
+      </div>
+    )
   }
 
   // CHAT VIEW
