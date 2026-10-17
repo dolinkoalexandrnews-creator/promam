@@ -66,8 +66,8 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5 backdrop-blur-sm">
-      <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="relative w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl" style={{ margin: 'auto' }}>
         {/* Close Button */}
         <button
           onClick={handleClose}
