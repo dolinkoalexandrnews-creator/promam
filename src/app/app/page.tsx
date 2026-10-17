@@ -94,25 +94,25 @@ export default function AppPage() {
     return (
       <div className="fixed inset-0 bg-cream text-ink flex flex-col">
         {/* Header */}
-        <div className="border-b border-line/30 px-6 py-4 flex items-center gap-4 bg-white">
-          <button onClick={() => setSelectedMom(null)} className="text-2xl hover:opacity-70 transition">←</button>
-          <div className="text-4xl">{mom?.emoji}</div>
-          <div className="flex-1">
-            <h2 className="text-xl font-bold">{mom?.users?.name}</h2>
+        <div className="border-b border-line/30 px-3 sm:px-6 py-3 flex items-center gap-3 bg-white">
+          <button onClick={() => setSelectedMom(null)} className="text-xl sm:text-2xl hover:opacity-70 transition flex-shrink-0">←</button>
+          <div className="text-3xl sm:text-4xl flex-shrink-0">{mom?.emoji}</div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base sm:text-xl font-bold truncate">{mom?.users?.name}</h2>
             <p className="text-xs text-muted">🟢 Online</p>
           </div>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4">
           {messages.map((msg, idx) => (
             <div key={idx} className={`flex ${msg.sender_id === currentUser?.id ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-xs px-4 py-2.5 rounded-2xl ${
+              <div className={`max-w-xs sm:max-w-md px-3 sm:px-4 py-2 rounded-2xl text-sm sm:text-base ${
                 msg.sender_id === currentUser?.id
                   ? 'bg-rose-500 text-white'
                   : 'bg-gray-100 text-ink'
               }`}>
-                <p className="text-sm">{msg.text}</p>
+                <p className="break-words">{msg.text}</p>
                 <p className={`text-xs mt-1 ${msg.sender_id === currentUser?.id ? 'text-rose-100' : 'text-muted'}`}>{new Date(msg.created_at).toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' })}</p>
               </div>
             </div>
@@ -120,18 +120,18 @@ export default function AppPage() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-line/30 px-6 py-4 flex gap-3 bg-white">
+        <div className="border-t border-line/30 px-3 sm:px-6 py-3 flex gap-2 bg-white pb-20 sm:pb-3">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && sendMessage(selectedMom)}
-            placeholder="Напиши повідомлення..."
-            className="flex-1 bg-gray-50 text-ink rounded-2xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-500/30 border border-line/30"
+            placeholder="Напиши..."
+            className="flex-1 bg-gray-50 text-ink rounded-2xl px-3 sm:px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-rose-500/30 border border-line/30"
           />
           <button
             onClick={() => sendMessage(selectedMom)}
-            className="bg-rose-500 text-white rounded-2xl px-6 py-2 hover:bg-rose-600 transition font-semibold"
+            className="bg-rose-500 text-white rounded-2xl px-3 sm:px-6 py-2 hover:bg-rose-600 transition font-semibold text-sm sm:text-base flex-shrink-0"
           >
             Надіслати
           </button>
@@ -141,53 +141,52 @@ export default function AppPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-cream text-ink">
+    <div className="min-h-dvh bg-cream text-ink pb-24 sm:pb-0">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-line/30 bg-white shadow-sm">
-        <div className="mx-auto max-w-6xl px-5 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">
+        <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
             PRO<span className="text-rose-500">MAM</span>
           </h1>
-          <div className="text-sm text-muted">👋 {currentUser?.name || 'Гість'}</div>
+          <div className="text-xs sm:text-sm text-muted">👋 {currentUser?.name?.split(' ')[0] || 'Гість'}</div>
         </div>
       </header>
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-5 py-12">
+      <main className="px-4 sm:px-6 py-6 sm:py-12">
         {activeTab === 'discover' && (
           <div>
-            <h2 className="text-4xl font-bold tracking-tight mb-10">🗺️ Мами поруч ({moms.length})</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-6 sm:mb-10">🗺️ Мами поруч ({moms.length})</h2>
 
             {moms.length === 0 ? (
-              <div className="rounded-2xl border border-line bg-white p-12 text-center">
+              <div className="rounded-2xl border border-line bg-white p-6 sm:p-12 text-center">
                 <p className="text-muted font-semibold">Немає зареєстрованих мам</p>
               </div>
             ) : (
-              <div className="grid gap-5 lg:grid-cols-3">
-                {/* Map Panel */}
-                <div className="lg:col-span-2 rounded-2xl border border-line bg-white p-6 h-96 relative overflow-hidden">
+              <div className="space-y-4 sm:grid sm:gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {/* Map Panel - hidden on mobile */}
+                <div className="hidden sm:block sm:col-span-2 rounded-2xl border border-line bg-white p-6 h-80 lg:h-96 relative overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50">
-                    <div className="text-center">
+                    <div className="text-center px-4">
                       <div className="text-5xl mb-4">🗺️</div>
-                      <p className="text-muted font-semibold">Карта з мамами (скоро Google Maps)</p>
-                      <p className="text-sm text-muted mt-2">Зараз показуємо {moms.length} мам поруч в Києві</p>
+                      <p className="text-muted font-semibold text-sm sm:text-base">Карта з мамами (скоро Google Maps)</p>
+                      <p className="text-xs text-muted mt-2">{moms.length} мам поруч в Києві</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Moms List Panel */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-lg px-2">Мами поруч</h3>
+                <div className="space-y-3 sm:col-span-2 lg:col-span-1">
                   {moms.map(mom => (
                     <button
                       key={mom.user_id}
                       onClick={() => setSelectedMom(mom.user_id)}
-                      className="w-full rounded-2xl border border-line bg-white p-4 hover:shadow-md transition text-left"
+                      className="w-full rounded-2xl border border-line bg-white p-4 hover:shadow-md transition text-left active:bg-rose-50"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="text-3xl">{mom.emoji}</div>
+                        <div className="text-3xl sm:text-4xl flex-shrink-0">{mom.emoji}</div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold">{mom.users?.name}</h4>
+                          <h4 className="font-semibold text-base sm:text-lg truncate">{mom.users?.name}</h4>
                           <p className="text-xs text-muted">{mom.age} років • {mom.child_age}</p>
                           <p className="text-xs text-rose-600 font-medium mt-1">⭐ {mom.rating}</p>
                         </div>
@@ -209,25 +208,25 @@ export default function AppPage() {
 
         {activeTab === 'chats' && (
           <div>
-            <h2 className="text-4xl font-bold tracking-tight mb-10">Мої чати</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-6 sm:mb-10">Мої чати</h2>
             {moms.length === 0 ? (
-              <div className="rounded-2xl border border-line bg-white p-12 text-center max-w-2xl">
+              <div className="rounded-2xl border border-line bg-white p-6 sm:p-12 text-center">
                 <p className="text-muted font-semibold">Немає активних чатів</p>
               </div>
             ) : (
-              <div className="space-y-3 max-w-2xl">
+              <div className="space-y-3">
                 {moms.map(mom => (
                   <button
                     key={mom.user_id}
                     onClick={() => setSelectedMom(mom.user_id)}
-                    className="w-full bg-white rounded-2xl p-4 border border-line hover:border-rose-500 text-left transition flex items-center gap-4"
+                    className="w-full bg-white rounded-2xl p-4 border border-line hover:border-rose-500 text-left transition flex items-center gap-4 active:bg-rose-50"
                   >
-                    <div className="text-3xl">{mom.emoji}</div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-lg">{mom.users?.name}</p>
-                      <p className="text-sm text-muted">💬 Напиши першою...</p>
+                    <div className="text-3xl sm:text-4xl flex-shrink-0">{mom.emoji}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold truncate">{mom.users?.name}</p>
+                      <p className="text-xs sm:text-sm text-muted">💬 Напиши першою...</p>
                     </div>
-                    <div className="text-muted">→</div>
+                    <div className="text-muted flex-shrink-0">→</div>
                   </button>
                 ))}
               </div>
@@ -236,10 +235,10 @@ export default function AppPage() {
         )}
 
         {activeTab === 'friends' && (
-          <div className="text-center py-20">
-            <h2 className="text-4xl font-bold tracking-tight mb-6">Подруги</h2>
-            <p className="text-muted mb-8">У тебе поки немає подруг</p>
-            <button className="bg-rose-500 text-white rounded-2xl px-8 py-3 font-semibold hover:bg-rose-600 transition">
+          <div className="text-center py-12 sm:py-20">
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-4 sm:mb-6">Подруги</h2>
+            <p className="text-muted mb-6 sm:mb-8">У тебе поки немає подруг</p>
+            <button className="bg-rose-500 text-white rounded-2xl px-6 sm:px-8 py-2.5 sm:py-3 font-semibold hover:bg-rose-600 transition text-sm sm:text-base">
               Знайти подругу
             </button>
           </div>
@@ -247,39 +246,39 @@ export default function AppPage() {
 
         {activeTab === 'profile' && (
           <div>
-            <h2 className="text-4xl font-bold tracking-tight mb-10">Профіль</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold tracking-tight mb-6 sm:mb-10">Профіль</h2>
 
             {/* User Card */}
-            <div className="max-w-2xl rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 to-white p-8 mb-8">
-              <div className="flex items-center gap-6">
-                <div className="text-6xl">👤</div>
-                <div>
-                  <h3 className="text-3xl font-bold">{currentUser?.name || 'Гість'}</h3>
-                  <p className="text-muted">@{currentUser?.name?.toLowerCase().replace(/\s+/g, '_') || 'guest'}</p>
+            <div className="rounded-2xl border border-rose-200 bg-gradient-to-br from-rose-50 to-white p-6 sm:p-8 mb-6 sm:mb-8">
+              <div className="flex items-center gap-4 sm:gap-6">
+                <div className="text-5xl sm:text-6xl flex-shrink-0">👤</div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-2xl sm:text-3xl font-bold truncate">{currentUser?.name || 'Гість'}</h3>
+                  <p className="text-muted text-sm truncate">@{currentUser?.name?.toLowerCase().replace(/\s+/g, '_') || 'guest'}</p>
                 </div>
               </div>
             </div>
 
             {/* Info Grid */}
-            <div className="max-w-2xl space-y-4 mb-8">
+            <div className="space-y-4 mb-8">
               <div className="bg-white rounded-2xl p-4 border border-line">
                 <p className="text-xs text-muted font-semibold mb-2">EMAIL</p>
-                <p className="font-semibold text-lg">{currentUser?.email || 'email@example.com'}</p>
+                <p className="font-semibold text-sm sm:text-lg break-all">{currentUser?.email || 'email@example.com'}</p>
               </div>
               <div className="bg-white rounded-2xl p-4 border border-line">
                 <p className="text-xs text-muted font-semibold mb-2">ДИТИНА</p>
-                <p className="font-semibold text-lg">Синочок, 2 роки</p>
+                <p className="font-semibold text-sm sm:text-lg">Синочок, 2 роки</p>
               </div>
               <div className="bg-white rounded-2xl p-4 border border-line">
                 <p className="text-xs text-muted font-semibold mb-2">ЛОКАЦІЯ</p>
-                <p className="font-semibold text-lg">м. Київ, Центр</p>
+                <p className="font-semibold text-sm sm:text-lg">м. Київ, Центр</p>
               </div>
             </div>
 
             {/* Logout Button */}
             <button
               onClick={() => { localStorage.removeItem('currentUser'); router.push('/'); }}
-              className="max-w-2xl w-full bg-red-50 text-red-600 border border-red-200 rounded-2xl py-3 font-semibold hover:bg-red-100 transition"
+              className="w-full bg-red-50 text-red-600 border border-red-200 rounded-2xl py-3 font-semibold hover:bg-red-100 transition text-sm sm:text-base"
             >
               Вийти з акаунту
             </button>
@@ -288,7 +287,7 @@ export default function AppPage() {
       </main>
 
       {/* Bottom Nav */}
-      <div className="fixed bottom-0 left-0 right-0 border-t border-line/30 flex bg-white shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 border-t border-line/30 flex bg-white shadow-lg sm:shadow-none sm:border-t-0 sm:relative">
         {[
           { tab: 'discover' as const, icon: '🔍', label: 'Знайти' },
           { tab: 'chats' as const, icon: '💬', label: 'Чати' },
@@ -298,20 +297,17 @@ export default function AppPage() {
           <button
             key={item.tab}
             onClick={() => setActiveTab(item.tab)}
-            className={`flex-1 py-4 text-center transition font-semibold ${
+            className={`flex-1 py-3 sm:py-4 text-center transition font-semibold text-sm sm:text-base ${
               activeTab === item.tab
                 ? 'text-rose-500 border-t-2 border-rose-500 bg-rose-50'
                 : 'text-muted hover:text-ink'
             }`}
           >
-            <div className="text-xl">{item.icon}</div>
-            <div className="text-xs mt-1">{item.label}</div>
+            <div className="text-lg sm:text-xl">{item.icon}</div>
+            <div className="text-xs mt-0.5">{item.label}</div>
           </button>
         ))}
       </div>
-
-      {/* Padding for bottom nav */}
-      <div className="h-20" />
     </div>
   )
 }
